@@ -20,41 +20,56 @@ $(document).ready(function() {
         localStorage.setItem('tasks', JSON.stringify(tasks));
     };
 
-    loadTasks();
-
-    $('#todo-list').on('click', '.list-group-item', function() {
-        currentTaskItem = $(this);  
-        const taskText = $(this).text();
+    const updateTaskDetailModal = () => {
+        const taskText = currentTaskItem.text();
         $('#taskDetailModalBody').text(taskText);
         $('#button-finish').text(currentTaskItem.hasClass('finished') ? 'Відновити' : 'Виконано');
-    });
+    };
 
-    $('#button-finish').on('click', function() {
+    const toggleTaskStatus = () => {
         if (currentTaskItem) {
             if (currentTaskItem.hasClass('finished')) {
                 currentTaskItem.removeClass('finished');
-                $(this).text('Виконано');
+                $('#button-finish').text('Виконано');
             } else {
                 currentTaskItem.addClass('finished');
-                $(this).text('Відновити');
+                $('#button-finish').text('Відновити');
             }
             saveTasks();  
         }
         $('#taskDetailModal').modal('hide');
-    });
+    };
 
-    $('#addTaskForm').on('submit', function(e) {
-        e.preventDefault();
-        const newTask = $('#taskText').val();
-        if (newTask) {
-            $('#todo-list').append(`<li class="list-group-item" data-toggle="modal" data-target="#taskDetailModal">${newTask}</li>`);
+    const addTask = (taskText) => {
+        if (taskText) {
+            $('#todo-list').append(`<li class="list-group-item" data-toggle="modal" data-target="#taskDetailModal">${taskText}</li>`);
             $('#taskText').val('');
             $('#addTaskModal').modal('hide');
             saveTasks();  
         }
-    });
+    };
 
-    $('#addTaskModal .btn-primary').on('click', function() {
-        $('#addTaskForm').submit();
-    });
+    const setupEventListeners = () => {
+        $('#todo-list').on('click', '.list-group-item', function() {
+            currentTaskItem = $(this);
+            updateTaskDetailModal();
+        });
+
+        $('#button-finish').on('click', function() {
+            toggleTaskStatus();
+        });
+
+        $('#addTaskForm').on('submit', function(e) {
+            e.preventDefault();
+            const newTask = $('#taskText').val();
+            addTask(newTask);
+        });
+
+        $('#addTaskModal .btn-primary').on('click', function() {
+            $('#addTaskForm').submit();
+        });
+    };
+
+    loadTasks();
+    setupEventListeners();
 });
